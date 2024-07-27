@@ -18,44 +18,8 @@ const (
 	EXPLICIT   Rating = "explicit"
 )
 
-// GetImagesParams represents params used by GetImages()
-type GetImagesParams struct {
-	Ratings      []Rating
-	IsOriginal   *bool
-	IsScreenshot *bool
-	IsFlagged    *bool
-	IsAnimated   *bool
-	Artist       *int
-	Character    []int
-	Tag          []int
-	Limit        int
-	Offset       int
-}
-
-// GetRandomImagesParams represents params used by GetRandomImages()
-type GetRandomImagesParams struct {
-	Ratings      []Rating
-	IsOriginal   *bool
-	IsScreenshot *bool
-	IsFlagged    *bool
-	IsAnimated   *bool
-	Artist       []int
-	Character    []int
-	Tag          []int
-	Limit        int
-}
-
-// PaginatedImage represents paginated Image results
-type PaginatedImage struct {
-	Items []Image `json:"items"`
-	Count int     `json:"count"`
-}
-
-// PaginatedTag represents paginated Tag results
-type PaginatedTag struct {
-	Items []Tag `json:"items"`
-	Count int   `json:"count"`
-}
+// URL for the /images endpoint
+const IMAGES_ENDPOINT string = BASE_URL_V3 + "/images"
 
 // Image represents an image
 type Image struct {
@@ -99,21 +63,47 @@ type Tag struct {
 	IsNSFW      bool   `json:"is_nsfw"`
 }
 
-// TODO: maybe rename these and or group them in one const ()
-const IMAGES_ENDPOINT string = BASE_URL_V3 + "/images"
+// PaginatedImage represents paginated Image results
+type PaginatedImage struct {
+	Items []Image `json:"items"`
+	Count int     `json:"count"`
+}
 
-const IMAGES_URL string = "/images"
-const RANDOM_URL string = "/random"
-const FILE_URL string = "/file"
-const ARTIST_URL string = "/artist"
-const CHARACTERS_URL string = "/characters"
-const TAGS_URL string = "/tags"
-const REPORT_URL string = "/report"
+// PaginatedTag represents paginated Tag results
+type PaginatedTag struct {
+	Items []Tag `json:"items"`
+	Count int   `json:"count"`
+}
 
-const MIN_LIMIT = 1
-const MAX_LIMIT = 100
+// GetImagesParams represents params used by GetImages()
+type GetImagesParams struct {
+	Ratings      []Rating
+	IsOriginal   *bool
+	IsScreenshot *bool
+	IsFlagged    *bool
+	IsAnimated   *bool
+	Artist       *int
+	Character    []int
+	Tag          []int
+	Limit        int
+	Offset       int
+}
 
-// GetImages() corresponds to /images endpoint.
+// GetRandomImagesParams represents params used by GetRandomImages()
+type GetRandomImagesParams struct {
+	Ratings      []Rating
+	IsOriginal   *bool
+	IsScreenshot *bool
+	IsFlagged    *bool
+	IsAnimated   *bool
+	Artist       []int
+	Character    []int
+	Tag          []int
+	Limit        int
+}
+
+// GetImages() corresponds to the /images endpoint.
+//
 // This endpoint allows you to search for an image, filtering by tags, characters, artists, etc.
 func GetImages(params GetImagesParams) (*PaginatedImage, error) {
 	endpointURL := IMAGES_ENDPOINT
@@ -165,7 +155,7 @@ func GetImages(params GetImagesParams) (*PaginatedImage, error) {
 	urlWithParams := endpointURL + "?" + values.Encode()
 
 	paginatedImages := &PaginatedImage{}
-	err := get_request(urlWithParams, paginatedImages)
+	err := getRequest(urlWithParams, paginatedImages)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +163,8 @@ func GetImages(params GetImagesParams) (*PaginatedImage, error) {
 	return paginatedImages, nil
 }
 
-// GetImageById() corresponds to /images/{id} endpoint.
+// GetImageById() corresponds to the /images/{id} endpoint.
+//
 // This endpoint allows you to get an image by its ID.
 func GetImageById(id int) (*Image, error) {
 	endpointURL := IMAGES_ENDPOINT
@@ -181,7 +172,7 @@ func GetImageById(id int) (*Image, error) {
 	finalUrl := fmt.Sprintf("%v/%d", endpointURL, id)
 
 	image := &Image{}
-	err := get_request(finalUrl, image)
+	err := getRequest(finalUrl, image)
 	if err != nil {
 		return nil, err
 	}
@@ -189,10 +180,11 @@ func GetImageById(id int) (*Image, error) {
 	return image, nil
 }
 
-// GetRandomImages() corresponds to the images/random endpoint.
+// GetRandomImages() corresponds to the /images/random endpoint.
+//
 // This endpoint allows you to get x random images, filtering by tags, characters, artists, etc.
 func GetRandomImages(params GetRandomImagesParams) (*PaginatedImage, error) {
-	endpointURL := IMAGES_ENDPOINT + RANDOM_URL
+	endpointURL := IMAGES_ENDPOINT + RANDOM_PATH
 
 	values := url.Values{}
 
@@ -239,7 +231,7 @@ func GetRandomImages(params GetRandomImagesParams) (*PaginatedImage, error) {
 	urlWithParams := endpointURL + "?" + values.Encode()
 
 	paginatedImages := &PaginatedImage{}
-	err := get_request(urlWithParams, paginatedImages)
+	err := getRequest(urlWithParams, paginatedImages)
 	if err != nil {
 		return nil, err
 	}
@@ -248,12 +240,13 @@ func GetRandomImages(params GetRandomImagesParams) (*PaginatedImage, error) {
 }
 
 // GetImageArtist() corresponds to the /images/{id}/artist endpoint.
+//
 // This endpoint allows you to get an image's artist.
 func GetImageArtist(id int) (*Artist, error) {
-	finalUrl := fmt.Sprintf("%v/%d%v", IMAGES_ENDPOINT, id, ARTIST_URL)
+	finalUrl := fmt.Sprintf("%v/%d%v", IMAGES_ENDPOINT, id, ARTIST_PATH)
 
 	artist := &Artist{}
-	err := get_request(finalUrl, artist)
+	err := getRequest(finalUrl, artist)
 	if err != nil {
 		return nil, err
 	}
@@ -261,10 +254,11 @@ func GetImageArtist(id int) (*Artist, error) {
 	return artist, nil
 }
 
-// GetTags() corresponds to /images/tags endpoint
+// GetTags() corresponds to the /images/tags endpoint.
+//
 // This endpoint allows you to search for a tag, filtering by name, description, and whether it's NSFW or not.
 func GetTags(search string, isNSFW *bool, limit int, offset int) (*PaginatedTag, error) {
-	endpointURL := IMAGES_ENDPOINT + TAGS_URL
+	endpointURL := IMAGES_ENDPOINT + TAGS_PATH
 
 	values := url.Values{}
 
@@ -289,7 +283,7 @@ func GetTags(search string, isNSFW *bool, limit int, offset int) (*PaginatedTag,
 	urlWithParams := endpointURL + "?" + values.Encode()
 
 	paginatedTag := &PaginatedTag{}
-	err := get_request(urlWithParams, paginatedTag)
+	err := getRequest(urlWithParams, paginatedTag)
 	if err != nil {
 		return nil, err
 	}
@@ -297,15 +291,16 @@ func GetTags(search string, isNSFW *bool, limit int, offset int) (*PaginatedTag,
 	return paginatedTag, nil
 }
 
-// GetTagById() corresponds to endpoint /images/tags/{id}
+// GetTagById() corresponds to the /images/tags/{id} endpoint.
+//
 // This endpoint allows you to get a tag by its ID.
 func GetTagById(id int) (*Tag, error) {
-	endpointURL := IMAGES_ENDPOINT + TAGS_URL
+	endpointURL := IMAGES_ENDPOINT + TAGS_PATH
 
 	finalUrl := fmt.Sprintf("%v/%d", endpointURL, id)
 
 	tag := &Tag{}
-	err := get_request(finalUrl, tag)
+	err := getRequest(finalUrl, tag)
 	if err != nil {
 		return nil, err
 	}
@@ -314,9 +309,10 @@ func GetTagById(id int) (*Tag, error) {
 }
 
 // GetTagImages() corresponds to the /images/tags/{id}/images endpoint.
+//
 // This endpoint allows you to search for a tag, filtering by name, description, and whether it's NSFW or not.
 func GetTagImages(id int, limit int, offset int) (*PaginatedImage, error) {
-	endpointURL := IMAGES_ENDPOINT + TAGS_URL
+	endpointURL := IMAGES_ENDPOINT + TAGS_PATH
 
 	values := url.Values{}
 
@@ -330,10 +326,10 @@ func GetTagImages(id int, limit int, offset int) (*PaginatedImage, error) {
 
 	values.Add("offset", strconv.Itoa(offset))
 
-	finalUrl := fmt.Sprintf("%v/%d%v", endpointURL, id, IMAGES_URL)
+	finalUrl := fmt.Sprintf("%v/%d%v", endpointURL, id, IMAGES_PATH)
 
 	paginatedImage := &PaginatedImage{}
-	err := get_request(finalUrl, paginatedImage)
+	err := getRequest(finalUrl, paginatedImage)
 	if err != nil {
 		return nil, err
 	}

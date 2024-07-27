@@ -7,7 +7,10 @@ import (
 	"strconv"
 )
 
-// Character represents character that may be present in an image
+// URL for the /characters endpoint
+const CHARACTERS_ENDPOINT string = BASE_URL_V3 + "/characters"
+
+// Character represents a character that may be present in an image
 type Character struct {
 	ID          int      `json:"id"`
 	IDV2        string   `json:"id_v2"`
@@ -42,9 +45,8 @@ type GetCharactersParams struct {
 	Offset      int
 }
 
-const CHARACTERS_ENDPOINT string = BASE_URL_V3 + "/characters"
-
-// GetCharacters() corresponds to /characters endpoint.
+// GetCharacters() corresponds to the /characters endpoint.
+//
 // This endpoint allows you to search for a character, filtering by name, aliases, description, etc.
 func GetCharacters(params GetCharactersParams) (*PaginatedCharacter, error) {
 	endpointURL := CHARACTERS_ENDPOINT
@@ -88,7 +90,7 @@ func GetCharacters(params GetCharactersParams) (*PaginatedCharacter, error) {
 	urlWithParams := endpointURL + "?" + values.Encode()
 
 	paginatedCharacter := &PaginatedCharacter{}
-	err := get_request(urlWithParams, paginatedCharacter)
+	err := getRequest(urlWithParams, paginatedCharacter)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +98,8 @@ func GetCharacters(params GetCharactersParams) (*PaginatedCharacter, error) {
 	return paginatedCharacter, nil
 }
 
-// GetCharacterById() corresponds to /characters/{id} endpoint.
+// GetCharacterById() corresponds to the /characters/{id} endpoint.
+//
 // This endpoint allows you to get an character by its ID.
 func GetCharacterById(id int) (*Character, error) {
 	endpointURL := CHARACTERS_ENDPOINT
@@ -104,7 +107,7 @@ func GetCharacterById(id int) (*Character, error) {
 	finalUrl := fmt.Sprintf("%v/%d", endpointURL, id)
 
 	character := &Character{}
-	err := get_request(finalUrl, character)
+	err := getRequest(finalUrl, character)
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +116,7 @@ func GetCharacterById(id int) (*Character, error) {
 }
 
 // GetCharacterImages() corresponds to the /characters/{id}/images endpoint.
+//
 // This endpoint allows you to get all images picturing a certain character.
 func GetCharacterImages(id int, limit int, offset int) (*PaginatedImage, error) {
 	endpointURL := CHARACTERS_ENDPOINT
@@ -129,10 +133,10 @@ func GetCharacterImages(id int, limit int, offset int) (*PaginatedImage, error) 
 
 	values.Add("offset", strconv.Itoa(offset))
 
-	finalUrl := fmt.Sprintf("%v/%d%v", endpointURL, id, IMAGES_URL)
+	finalUrl := fmt.Sprintf("%v/%d%v", endpointURL, id, IMAGES_PATH)
 
 	paginatedImage := &PaginatedImage{}
-	err := get_request(finalUrl, paginatedImage)
+	err := getRequest(finalUrl, paginatedImage)
 	if err != nil {
 		return nil, err
 	}

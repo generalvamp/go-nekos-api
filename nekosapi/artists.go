@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+// URL for the /artists endpoint
+const ARTISTS_ENDPOINT string = BASE_URL_V3 + "/artists"
+
 // Artist represents the artist of an image
 type Artist struct {
 	ID           int      `json:"id"`
@@ -36,9 +39,8 @@ type GetArtistsParams struct {
 	Offset       int
 }
 
-const ARTISTS_ENDPOINT string = BASE_URL_V3 + "/artists"
-
-// GetArtists() corresponds to /artists endpoint.
+// GetArtists() correspond to the /artists endpoint.
+//
 // This endpoint allows you to search for an artist, filtering by name, aliases, policies, etc.
 func GetArtists(params GetArtistsParams) (*PaginatedArtist, error) {
 	endpointURL := ARTISTS_ENDPOINT
@@ -74,7 +76,7 @@ func GetArtists(params GetArtistsParams) (*PaginatedArtist, error) {
 	urlWithParams := endpointURL + "?" + values.Encode()
 
 	paginatedArtist := &PaginatedArtist{}
-	err := get_request(urlWithParams, paginatedArtist)
+	err := getRequest(urlWithParams, paginatedArtist)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +84,8 @@ func GetArtists(params GetArtistsParams) (*PaginatedArtist, error) {
 	return paginatedArtist, nil
 }
 
-// GetArtistById() corresponds to /artists/{id} endpoint.
+// GetArtistById() corresponds to the /artists/{id} endpoint.
+//
 // This endpoint allows you to get an artist by its ID.
 func GetArtistById(id int) (*Artist, error) {
 	endpointURL := ARTISTS_ENDPOINT
@@ -90,7 +93,7 @@ func GetArtistById(id int) (*Artist, error) {
 	finalUrl := fmt.Sprintf("%v/%d", endpointURL, id)
 
 	artist := &Artist{}
-	err := get_request(finalUrl, artist)
+	err := getRequest(finalUrl, artist)
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +102,7 @@ func GetArtistById(id int) (*Artist, error) {
 }
 
 // GetArtistImages() corresponds to the /artists/{id}/images endpoint.
+//
 // This endpoint allows you to get all images made by an artist.
 func GetArtistImages(id int, limit int, offset int) (*PaginatedImage, error) {
 	endpointURL := ARTISTS_ENDPOINT
@@ -115,10 +119,10 @@ func GetArtistImages(id int, limit int, offset int) (*PaginatedImage, error) {
 
 	values.Add("offset", strconv.Itoa(offset))
 
-	finalUrl := fmt.Sprintf("%v/%d%v", endpointURL, id, IMAGES_URL)
+	finalUrl := fmt.Sprintf("%v/%d%v", endpointURL, id, IMAGES_PATH)
 
 	paginatedImage := &PaginatedImage{}
-	err := get_request(finalUrl, paginatedImage)
+	err := getRequest(finalUrl, paginatedImage)
 	if err != nil {
 		return nil, err
 	}
