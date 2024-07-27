@@ -321,7 +321,7 @@ func GetTagImages(id int, limit int, offset int) (*PaginatedImage, error) {
 	values := url.Values{}
 
 	if limit != 0 {
-		if limit < 1 || limit > 100 {
+		if limit < MIN_LIMIT || limit > MAX_LIMIT {
 			return nil, errors.New("param limit must be between 1 and 100")
 		}
 
