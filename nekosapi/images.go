@@ -3,6 +3,7 @@ package nekosapi
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strconv"
 )
@@ -239,6 +240,71 @@ func GetRandomImages(params GetRandomImagesParams) (*PaginatedImage, error) {
 	return paginatedImages, nil
 }
 
+// GetRandomFile() corresponds to the /images/random/file endpoint.
+//
+// This endpoint allows you to get a redirect to a random image's file URL, filtering by tags, characters, artists, etc.
+func GetRandomFile(params GetRandomImagesParams) (string, error) {
+	endpointURL := IMAGES_ENDPOINT + RANDOM_PATH + FILE_PATH
+
+	values := url.Values{}
+
+	for _, r := range params.Ratings {
+		values.Add("rating", string(r))
+	}
+
+	if params.IsOriginal != nil {
+		values.Add("is_original", strconv.FormatBool(*params.IsOriginal))
+	}
+
+	if params.IsScreenshot != nil {
+		values.Add("is_screenshot", strconv.FormatBool(*params.IsScreenshot))
+	}
+
+	if params.IsFlagged != nil {
+		values.Add("is_flagged", strconv.FormatBool(*params.IsFlagged))
+	}
+
+	if params.IsAnimated != nil {
+		values.Add("is_animated", strconv.FormatBool(*params.IsAnimated))
+	}
+
+	for _, r := range params.Artist {
+		values.Add("artist", strconv.Itoa(r))
+	}
+
+	for _, c := range params.Character {
+		values.Add("character", strconv.Itoa(c))
+	}
+
+	for _, t := range params.Tag {
+		values.Add("tag", strconv.Itoa(t))
+	}
+
+	urlWithParams := endpointURL + "?" + values.Encode()
+
+	req, err := http.NewRequest("GET", urlWithParams, nil)
+	if err != nil {
+		return "", err
+	}
+	client := new(http.Client)
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return errors.New("Redirect")
+	}
+
+	response, err := client.Do(req)
+
+	if response != nil && response.StatusCode == http.StatusFound {
+		url, err := response.Location()
+		if err != nil {
+			return "", err
+		}
+
+		return url.String(), nil
+	}
+
+	return "", err
+}
+
 // GetImageArtist() corresponds to the /images/{id}/artist endpoint.
 //
 // This endpoint allows you to get an image's artist.
@@ -252,6 +318,36 @@ func GetImageArtist(id int) (*Artist, error) {
 	}
 
 	return artist, nil
+}
+
+// PostReportImage() corresponds to the /images/report endpoint.
+//
+// This endpoint allows you to create an image report.
+// Use it when you think that an image has incorrect information.
+// Using this endpoint multiple times won't report the image multiple times.
+// It also won't create a new report if the image already has one.
+// You can check the report status with the is_flagged attribute of the image.
+func PostReportImage(id *int, imageCdnUrl string) error {
+	endpointURL := IMAGES_ENDPOINT + REPORT_PATH
+
+	values := url.Values{}
+
+	if id != nil {
+		values.Add("id", strconv.Itoa(*id))
+	} else if imageCdnUrl != "" {
+		values.Add("url", imageCdnUrl)
+	}
+
+	urlWithParams := endpointURL + "?" + values.Encode()
+
+	res, err := http.Post(urlWithParams, "application/json", nil)
+
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return nil
 }
 
 // GetTags() corresponds to the /images/tags endpoint.

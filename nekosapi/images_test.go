@@ -81,6 +81,22 @@ func TestGetRandomImages(t *testing.T) {
 	}
 }
 
+// Test GetRandomFile()
+func TestGetRandomFile(t *testing.T) {
+	randomImageParams := GetRandomImagesParams{
+		Ratings: []Rating{SAFE},
+	}
+
+	randomImageFile, err := GetRandomFile(randomImageParams)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if randomImageFile == "" {
+		t.Fatal("Random file was not found")
+	}
+}
+
 // Test GetImageArtist()
 func TestGetImageArtist(t *testing.T) {
 	const expectedArtist string = "Rosuuri"
@@ -92,6 +108,17 @@ func TestGetImageArtist(t *testing.T) {
 
 	if artist.Name != expectedArtist {
 		t.Fatalf("Expected artist %v", expectedArtist)
+	}
+}
+
+// Test PostReportImage()
+func TestPostReportImage(t *testing.T) {
+	id := 23643
+	url := ""
+
+	err := PostReportImage(&id, url)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
