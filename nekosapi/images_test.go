@@ -1,6 +1,8 @@
 package nekosapi
 
-import "testing"
+import (
+	"testing"
+)
 
 // Test GetImages()
 func TestGetImages(t *testing.T) {

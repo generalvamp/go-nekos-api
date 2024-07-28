@@ -422,7 +422,7 @@ func GetTagImages(id int, limit int, offset int) (*PaginatedImage, error) {
 
 	values.Add("offset", strconv.Itoa(offset))
 
-	finalUrl := fmt.Sprintf("%v/%d%v", endpointURL, id, IMAGES_PATH)
+	finalUrl := fmt.Sprintf("%v/%d%v?%v", endpointURL, id, IMAGES_PATH, values.Encode())
 
 	paginatedImage := &PaginatedImage{}
 	err := getRequest(finalUrl, paginatedImage)
