@@ -4,3 +4,12 @@
 
 
 Unofficial go wrapper of [Nekos API](https://github.com/Nekos-API/Nekos-API)
+
+## Installation
+```
+go get github.com/generalvamp/go-nekos-api
+```
+
+## Usage
+
+See some examples in [examples/README.md](examples/README.md)
