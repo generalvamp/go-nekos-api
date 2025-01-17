@@ -10,18 +10,14 @@ import (
 	"net/http"
 )
 
-// Base URL for version 3 of Nekos API.
-const BASE_URL_V3 string = "https://api.nekosapi.com/v3"
+// Base URL for version 4 of Nekos API.
+const BASE_URL_V4 string = "https://api.nekosapi.com/v4"
 
 // Paths used for building URLs
 const (
-	IMAGES_PATH     string = "/images"
-	RANDOM_PATH     string = "/random"
-	FILE_PATH       string = "/file"
-	ARTIST_PATH     string = "/artist"
-	CHARACTERS_PATH string = "/characters"
-	TAGS_PATH       string = "/tags"
-	REPORT_PATH     string = "/report"
+	IMAGES_PATH string = "/images"
+	RANDOM_PATH string = "/random"
+	FILE_PATH   string = "/file"
 )
 
 // Constants for use with limit query parameter

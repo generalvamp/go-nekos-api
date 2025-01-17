@@ -1,6 +1,8 @@
 package nekosapi
 
-import "testing"
+import (
+	"testing"
+)
 
 // Test getRequest()
 func TestGetRequest(t *testing.T) {
@@ -10,7 +12,7 @@ func TestGetRequest(t *testing.T) {
 		t.Error(err)
 	}
 
-	if image.ImageURL == "" {
+	if image.URL == "" {
 		t.Error("Get request failed to parse image")
 	}
 }
