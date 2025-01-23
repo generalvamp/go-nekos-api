@@ -12,42 +12,31 @@ import (
 )
 
 func main() {
-	params := nekosapi.GetCharactersParams{
-		Search: "Kurumi",
+	imageParams := nekosapi.GetImagesParams{
+		Ratings: []nekosapi.Rating{nekosapi.SAFE, nekosapi.SUGGESTIVE},
+		Tags:    []string{"black_hair", "dress"},
+		Limit:   2,
+		Offset:  1,
 	}
 
-	// Get characters based on search param Kurumi
-	paginatedCharacters, err := nekosapi.GetCharacters(params)
+	images, err := nekosapi.GetImages(imageParams)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
-	// loop over the found characters
-	for _, character := range paginatedCharacters.Items {
-
-		// Get two images for the current character
-		paginatedImages, err := nekosapi.GetCharacterImages(character.ID, 2, 0)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Printf("Character Name: %v\n", character.Name)
-
-		for _, image := range paginatedImages.Items {
-			fmt.Printf("Image: %v\n", image.ImageURL)
-		}
+	for _, image := range images.Items {
+		fmt.Printf("Image: %v\n", image.URL)
 	}
 }
 
 // Output:
-// Character Name: Toksaki, Kurumi
-// Image: https://cdn.nekosapi.com/images/original/452f652f-704a-409e-9ec0-2874684a4152.webp
-// Image: https://cdn.nekosapi.com/images/original/71b0dd4e-f660-49f9-ae6f-cddab2ec0eed.webp
+// Image: https://s3.nyeki.dev/nekos-api/images/original/110eb935-e399-4872-bcc1-a3db4fcbd651.webp
+// Image: https://s3.nyeki.dev/nekos-api/images/original/77f8b866-359e-46ed-80fc-59ce54787d36.webp
 ```
 
-| Character Name    | 1st Image   | 2nd Image |
-| ---------------   | ---------   | ----------|
-| Toksaki, Kurumi     | ![image 1](https://cdn.nekosapi.com/images/original/452f652f-704a-409e-9ec0-2874684a4152.webp)| ![image 2](https://cdn.nekosapi.com/images/original/71b0dd4e-f660-49f9-ae6f-cddab2ec0eed.webp) |
+| 1st Image   | 2nd Image |
+| ---------   | ----------|
+| ![image 1](https://s3.nyeki.dev/nekos-api/images/original/110eb935-e399-4872-bcc1-a3db4fcbd651.webp)| ![image 2](https://s3.nyeki.dev/nekos-api/images/original/77f8b866-359e-46ed-80fc-59ce54787d36.webp)  |
 
 ## Get random images
 
@@ -61,77 +50,28 @@ import (
 )
 
 func main() {
-	isFlagged := false
-	params := nekosapi.GetRandomImagesParams{
-		Ratings:   []nekosapi.Rating{nekosapi.SAFE},
-		IsFlagged: &isFlagged,
-		Limit:     3,
+	randomImageParams := nekosapi.GetRandomImagesParams{
+		Ratings: []nekosapi.Rating{nekosapi.SAFE, nekosapi.SUGGESTIVE},
+		Limit:   3,
 	}
 
-	// Get random images based on params
-	paginatedImages, err := nekosapi.GetRandomImages(params)
+	images, err := nekosapi.GetRandomImages(randomImageParams)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
-	// loop over the found images
-	for _, image := range paginatedImages.Items {
-		fmt.Printf("Image: %v\n", image.ImageURL)
+	for _, image := range images {
+		fmt.Printf("Image: %v\n", image.URL)
 	}
 }
+
 // Output:
-// Image: https://cdn.nekosapi.com/images/original/0947f334-940f-40bf-a857-166a3f38dcca.webp
-// Image: https://cdn.nekosapi.com/images/original/c2dfbc28-1cad-4f94-8ff2-501b4b60ff74.webp
-// Image: https://cdn.nekosapi.com/images/original/129fc4b2-8beb-458b-bdfd-5af0b7818247.webp
+// Image: https://s3.nyeki.dev/nekos-api/images/original/d45b7242-fcd7-444b-9e18-86767de05463.webp
+// Image: https://s3.nyeki.dev/nekos-api/images/original/c2d0bc3b-ead0-4ebb-9c78-c9c05b975bb0.webp
+// Image: https://s3.nyeki.dev/nekos-api/images/original/ad824fdd-1df4-473b-be1b-49d7ffb9b3a3.webp
 ```
 
 | 1st Image   | 2nd Image   | 3nd Image |
 | ---------   | ---------   | --------- |
-| ![image 1](https://cdn.nekosapi.com/images/original/0947f334-940f-40bf-a857-166a3f38dcca.webp)    | ![image 2](https://cdn.nekosapi.com/images/original/c2dfbc28-1cad-4f94-8ff2-501b4b60ff74.webp)| ![image 3](https://cdn.nekosapi.com/images/original/129fc4b2-8beb-458b-bdfd-5af0b7818247.webp) |
+| ![image 1](https://s3.nyeki.dev/nekos-api/images/original/d45b7242-fcd7-444b-9e18-86767de05463.webp)    | ![image 2](https://s3.nyeki.dev/nekos-api/images/original/c2d0bc3b-ead0-4ebb-9c78-c9c05b975bb0.webp)| ![image 3](https://s3.nyeki.dev/nekos-api/images/original/ad824fdd-1df4-473b-be1b-49d7ffb9b3a3.webp) |
 
-## Get images for a tag
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/generalvamp/go-nekos-api/nekosapi"
-)
-
-func main() {
-	// Get tag based on search sword
-	paginatedTags, err := nekosapi.GetTags("sword", nil, 1, 0)
-	if err != nil {
-		panic(err)
-	}
-
-	swordTag := paginatedTags.Items[0]
-
-	isFlagged := false
-	params := nekosapi.GetImagesParams{
-		Ratings:   []nekosapi.Rating{nekosapi.SAFE},
-		IsFlagged: &isFlagged,
-		Tag:       []int{swordTag.ID},
-		Limit:     2,
-	}
-
-	// Get images based on params
-	paginatedImages, err := nekosapi.GetImages(params)
-	if err != nil {
-		panic(err)
-	}
-
-	// loop over the found images
-	for _, image := range paginatedImages.Items {
-		fmt.Printf("Image: %v\n", image.ImageURL)
-	}
-}
-// Output:
-// Image: https://cdn.nekosapi.com/images/original/ae5fcccd-bb35-4fa3-b6e8-12ac3b7ab10a.webp
-// Image: https://cdn.nekosapi.com/images/original/ddf0998c-7422-4f10-9ab7-536bc0be3d2d.webp
-```
-
-|  1st Image   | 2nd Image |
-| -----------  | --------- |
-| ![image 1](https://cdn.nekosapi.com/images/original/ae5fcccd-bb35-4fa3-b6e8-12ac3b7ab10a.webp)| ![image 2](https://cdn.nekosapi.com/images/original/ddf0998c-7422-4f10-9ab7-536bc0be3d2d.webp) |

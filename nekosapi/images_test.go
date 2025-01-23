@@ -1,14 +1,16 @@
 package nekosapi
 
 import (
+	"slices"
 	"testing"
 )
 
 // Test GetImages()
 func TestGetImages(t *testing.T) {
 	imageParams := GetImagesParams{
-		Ratings: []Rating{SAFE},
-		Limit:   5,
+		Ratings: []Rating{SAFE, SUGGESTIVE},
+		Tags:    []string{"blue_hair", "skirt"},
+		Limit:   20,
 	}
 
 	images, err := GetImages(imageParams)
@@ -17,8 +19,14 @@ func TestGetImages(t *testing.T) {
 	}
 
 	for _, image := range images.Items {
-		if image.Rating != SAFE {
-			t.Fatal("Expecting only SAFE images")
+		if image.Rating != SAFE && image.Rating != SUGGESTIVE {
+			t.Fatal("Expecting only SAFE or SUGGESTIVE images")
+		}
+		if !slices.Contains(image.Tags, "blue_hair") {
+			t.Fatal("Expecting blue_hair tag to be included in tags")
+		}
+		if !slices.Contains(image.Tags, "skirt") {
+			t.Fatal("Expecting skirt tag to be included in tags")
 		}
 	}
 }
@@ -27,45 +35,44 @@ func TestGetImages(t *testing.T) {
 func TestGetImageById(t *testing.T) {
 	id := 1449
 
-	const expectedCharacterName string = "Tohsaka, Rin"
-	const expectedTagName string = "Purple hair"
+	const expectedTagName string = "purple_hair"
 
 	result, err := GetImageById(id)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	containsRin := false
-	for _, character := range result.Characters {
-		if character.Name == expectedCharacterName {
-			containsRin = true
-		}
-	}
-
 	containsPurpleHair := false
 	for _, tag := range result.Tags {
-		if tag.Name == expectedTagName {
+		if tag == expectedTagName {
 			containsPurpleHair = true
 		}
 	}
 
-	if !containsRin {
-		t.Fatal("Rin expected to be in this image")
+	if !containsPurpleHair {
+		t.Fatal("purple_hair tag expected to be in this image")
+	}
+}
+
+// Test GetImageFileById()
+func TestGetImageFileById(t *testing.T) {
+	id := 1449
+
+	imageFile, err := GetImageFileById(id)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	if !containsPurpleHair {
-		t.Fatal("Purple hair tag expected to be in this image")
+	if imageFile == "" {
+		t.Fatal("Image file was not found")
 	}
 }
 
 // Test GetRandomImages()
 func TestGetRandomImages(t *testing.T) {
-	isOriginal := true
-
 	imageParams := GetRandomImagesParams{
-		Ratings:    []Rating{SAFE},
-		Limit:      5,
-		IsOriginal: &isOriginal,
+		Ratings: []Rating{SAFE, SUGGESTIVE},
+		Limit:   3,
 	}
 
 	images, err := GetRandomImages(imageParams)
@@ -73,19 +80,20 @@ func TestGetRandomImages(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, image := range images.Items {
-		if image.Rating != SAFE {
-			t.Fatal("Expecting only SAFE images")
+	for _, image := range images {
+		if image.Rating != SAFE && image.Rating != SUGGESTIVE {
+			t.Fatal("Expecting only SAFE or SUGGESTIVE images")
 		}
-		if !image.IsOriginal {
-			t.Fatal("Expecting only original images")
-		}
+	}
+
+	if len(images) != imageParams.Limit {
+		t.Fatal("Number of returned images does not match limit")
 	}
 }
 
 // Test GetRandomFile()
 func TestGetRandomFile(t *testing.T) {
-	randomImageParams := GetRandomImagesParams{
+	randomImageParams := GetRandomFileParams{
 		Ratings: []Rating{SAFE},
 	}
 
@@ -96,85 +104,5 @@ func TestGetRandomFile(t *testing.T) {
 
 	if randomImageFile == "" {
 		t.Fatal("Random file was not found")
-	}
-}
-
-// Test GetImageArtist()
-func TestGetImageArtist(t *testing.T) {
-	const expectedArtist string = "Rosuuri"
-
-	artist, err := GetImageArtist(13494)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if artist.Name != expectedArtist {
-		t.Fatalf("Expected artist %v", expectedArtist)
-	}
-}
-
-// Test PostReportImage()
-func TestPostReportImage(t *testing.T) {
-	id := 23643
-	url := ""
-
-	err := PostReportImage(&id, url)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-// Test GetTags()
-func TestGetTags(t *testing.T) {
-	isNSFW := false
-
-	tags, err := GetTags("", &isNSFW, 10, 10)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for _, tag := range tags.Items {
-		if tag.IsNSFW {
-			t.Fatalf("Expecting only SFW tags. Found tag %v", tag.Name)
-		}
-	}
-}
-
-// Test GetTagById()
-func TestGetTagById(t *testing.T) {
-	const expectedTag string = "Beach"
-	const expectedTagId int = 20
-
-	tag, err := GetTagById(expectedTagId)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if tag.Name != expectedTag {
-		t.Fatalf("Expecting tag %v, found tag %v, %v", expectedTag, tag.Name, tag)
-	}
-}
-
-// Test GetTagImages()
-func TestGetTagImages(t *testing.T) {
-	const expectedTag string = "Beach"
-	const expectedTagId int = 20
-
-	images, err := GetTagImages(expectedTagId, 5, 0)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for _, image := range images.Items {
-		containsExpectedTag := false
-		for _, tag := range image.Tags {
-			if tag.Name == expectedTag {
-				containsExpectedTag = true
-			}
-		}
-
-		if !containsExpectedTag {
-			t.Fatalf("All images do not contain the expected tag %v", expectedTag)
-		}
 	}
 }
