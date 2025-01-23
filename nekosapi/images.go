@@ -244,9 +244,6 @@ func GetRandomFile(params GetRandomFileParams) (string, error) {
 	}
 
 	response, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
 
 	if response != nil && response.StatusCode == http.StatusFound {
 		url, err := response.Location()
