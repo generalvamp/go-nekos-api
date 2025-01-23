@@ -166,7 +166,7 @@ func GetImageFileById(id int) (string, error) {
 // GetRandomImages() corresponds to the /images/random endpoint.
 //
 // This endpoint allows you to get x random images, filtering by tags, characters, artists, etc.
-func GetRandomImages(params GetRandomImagesParams) (*PaginatedImage, error) {
+func GetRandomImages(params GetRandomImagesParams) ([]Image, error) {
 	endpointURL := IMAGES_ENDPOINT + RANDOM_PATH
 
 	values := url.Values{}
@@ -198,13 +198,13 @@ func GetRandomImages(params GetRandomImagesParams) (*PaginatedImage, error) {
 
 	urlWithParams := endpointURL + "?" + values.Encode()
 
-	paginatedImages := &PaginatedImage{}
-	err := getRequest(urlWithParams, paginatedImages)
+	images := []Image{}
+	err := getRequest(urlWithParams, &images)
 	if err != nil {
 		return nil, err
 	}
 
-	return paginatedImages, nil
+	return images, nil
 }
 
 // GetRandomFile() corresponds to the /images/random/file endpoint.

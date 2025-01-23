@@ -71,8 +71,8 @@ func TestGetImageFileById(t *testing.T) {
 // Test GetRandomImages()
 func TestGetRandomImages(t *testing.T) {
 	imageParams := GetRandomImagesParams{
-		Ratings: []Rating{SAFE},
-		Limit:   5,
+		Ratings: []Rating{SAFE, SUGGESTIVE},
+		Limit:   3,
 	}
 
 	images, err := GetRandomImages(imageParams)
@@ -80,10 +80,14 @@ func TestGetRandomImages(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, image := range images.Items {
-		if image.Rating != SAFE {
-			t.Fatal("Expecting only SAFE images")
+	for _, image := range images {
+		if image.Rating != SAFE && image.Rating != SUGGESTIVE {
+			t.Fatal("Expecting only SAFE or SUGGESTIVE images")
 		}
+	}
+
+	if len(images) != imageParams.Limit {
+		t.Fatal("Number of returned images does not match limit")
 	}
 }
 
