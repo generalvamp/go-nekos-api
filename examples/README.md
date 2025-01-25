@@ -1,6 +1,6 @@
 # Examples
 
-## Get images for a character
+## Get images
 
 ```go
 package main
